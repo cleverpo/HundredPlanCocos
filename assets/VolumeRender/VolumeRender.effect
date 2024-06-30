@@ -1,0 +1,279 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+//blinnphong带有法线贴图+高光贴图
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+        
+        centre:        { value: [0, 0, 0, 0], editor: { type: vec4 } }
+        centre1:        { value: [0, 0, 0, 0], editor: { type: vec4 } }
+        radius:        { value: 1.0, editor: { slide: true, range: [0.1, 10.0, 0.1]}}
+        radius1:        { value: 1.0, editor: { slide: true, range: [0.1, 10.0, 0.1]}}
+
+        diffuseColor:  { value: [1, 1, 1, 1], editor: { type: color } }
+        specularColor: { value: [1, 1, 1, 1], editor: { type: color } }
+
+}%
+
+CCProgram unlit-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/local-batch>
+  #include <legacy/input-standard>
+
+  out vec2 v_uv;
+  out vec3 v_position;
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+    vec4 pos = matWorld * In.position;
+
+    v_position = pos.xyz;
+    v_uv = a_texCoord;
+    
+    return cc_matProj * (cc_matView * pos);;
+  }
+}%
+
+
+CCProgram unlit-fs %{
+  precision highp float;
+
+  #include <legacy/output>
+
+  uniform sampler2D mainTexture;
+  in vec2 v_uv;
+
+  uniform Constant {
+    vec4 mainColor;
+    vec4 diffuseColor;
+    vec4 specularColor;
+  };
+
+  in vec3 v_position;
+  uniform VolumeRenderConstant {
+    vec4 centre;
+    vec4 centre1;
+    float radius;
+    float radius1;
+  };
+
+  #if USE_RAYCAST_HIT
+    bool sphereHit(vec3 pos){
+      return length(pos - centre.xyz) < radius;
+    }
+    //Sphere Volumetric Raycasting
+    bool raycastHit(vec3 pos, vec3 dir){
+      //球体中心的向量
+      vec3 oc = pos - centre.xyz;
+      //到相机的距离的平方
+      float a = dot(dir, dir);
+
+      float b = 2.0 * dot(oc, dir);
+      //到中心的距离平方-半径平方
+      float c = dot(oc, oc) - radius * radius;
+      float discriminant = b * b - 4.0 * a * c;
+      return (discriminant > 0.0);
+    }
+  #endif
+
+  #if USE_RAYMARCH_HIT_CONSTANT_STEP
+    //Sphere Raymarching Hit
+    bool raymarchHit(vec3 pos, vec3 dir){
+      vec3 p = pos;
+      const int STEPS = 64;
+      float STEP_SIZE = 0.1;
+      for(int i = 0; i < STEPS; i++){
+        if(sphereHit(p)){
+          return true;
+        }
+        p += dir * STEP_SIZE;
+      }
+      return false;
+    }
+  #endif
+
+  #if USE_RAYMARCH_DISTANCE_AIDED
+    float sphereDistance0(vec3 pos){
+      return length(pos - centre.xyz) - radius;
+    }
+
+    vec4 raymarch0(vec3 pos, vec3 dir){
+      const int STEPS = 64;
+
+      for(int i = 0; i < STEPS; i++){
+        float distance = sphereDistance0(pos);
+        if(distance < 0.01){
+          return vec4(float(i) / float(STEPS));
+        }
+        pos += dir * distance;
+      }
+      return vec4(0.0);
+    }
+  #endif
+
+  //sdf 并集
+  float sdfUnion(float f1, float f2){
+    return min(f1, f2);
+  }
+
+  //sdf 交集
+  float sdfIntersect(float f1, float f2){
+    return max(f1, f2);
+  }
+
+  //sdf 差集
+  float sdfDifference(float f1, float f2){
+    return max(f1, -f2);
+  }
+
+  //sphere sdf
+  float sdf_sphere(vec3 p, vec3 c, float r){
+    return length(p - c.xyz) - r;
+  }
+
+  //box sdf
+  float sdf_box(vec3 p, vec3 c, vec3 b){
+    vec3 d = abs(p - c.xyz) - b;
+    return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
+  }
+
+  //平滑 sdf
+  float sdfUnionSmooth(float d1, float d2, float k){
+    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
+    return mix(d2, d1, h) - k * h * (1.0 - h);
+  }
+
+  //sdf blend
+  float sdfBlend(float f1, float f2, float k){
+    return mix(f1, f2, k);
+  }
+
+  //opOnion
+  float opOnion(float sdf, float thickness){
+    return abs(sdf) - thickness;
+  }
+
+  float sdf_smin(float a, float b, float k) {
+      float res = exp(-k * a) + exp(-k * b);
+      return -log(max(0.0001, res)) / k;
+  }
+
+  #if USE_RAYMARCH_SURFACE
+    float sdfDistance(vec3 pos){
+      #if USE_RAYMARCH_SURFACE_SDF_UNION
+        return sdfUnion(
+            sdf_sphere(pos, centre.xyz, radius), 
+            sdf_box(pos, centre1.xyz, vec3(radius1))
+          );
+      #elif USE_RAYMARCH_SURFACE_SDF_BLEND
+        return sdfBlend(
+            sdf_sphere(pos, centre.xyz, radius), 
+            sdf_box(pos, centre1.xyz, vec3(radius1)), 
+            sin(cc_time.x) * 0.5 + 0.5
+          );
+      #elif USE_RAYMARCH_SURFACE_SDF_UNION_SMOOTH
+        return sdf_smin(
+            opOnion(sdf_sphere(pos, centre.xyz, radius), 0.05),
+            opOnion(sdf_sphere(pos, centre1.xyz, radius1), 0.05),
+            1.0
+          );
+      #else
+        return sdf_sphere(pos, centre.xyz, radius);
+      #endif
+    }
+
+    //get normal via distance field
+    vec3 getNormal(vec3 pos){
+      const float EPSILON = 0.01;
+      vec3 n = vec3(
+        sdfDistance(pos + vec3(EPSILON, 0.0, 0.0)) - sdfDistance(pos - vec3(EPSILON, 0.0, 0.0)),
+        sdfDistance(pos + vec3(0.0, EPSILON, 0.0)) - sdfDistance(pos - vec3(0.0, EPSILON, 0.0)),
+        sdfDistance(pos + vec3(0.0, 0.0, EPSILON)) - sdfDistance(pos - vec3(0.0, 0.0, EPSILON))
+      );
+      return normalize(n);
+    }
+
+    vec4 blinnphone(vec3 normal, vec3 viewDir){
+      vec3 lightDirWolrd = normalize(-cc_mainLitDir.xyz);
+      vec3 worldNormal = normalize(normal);
+      vec3 worldViewDir = normalize(viewDir);
+      vec3 halfDir = normalize(lightDirWolrd + worldViewDir);
+      // vec3 halfDir = (lightDirWolrd - worldViewDir) / 2.0;
+      float nDotL = max(dot(worldNormal, lightDirWolrd), 0.0);
+      float nDotH = max(dot(worldNormal, halfDir), 0.0);
+      
+
+      vec4 albedo = mainColor;
+      vec3 ambient = cc_mainLitColor.rgb * cc_ambientSky.rgb * albedo.rgb;
+      vec3 diffuse = cc_mainLitColor.rgb * nDotL * albedo.rgb * diffuseColor.rgb;
+      vec3 specular = cc_mainLitColor.rgb * pow(nDotH, 32.0) * specularColor.rgb;
+
+      return vec4(ambient + diffuse + specular, 1.0);
+    }
+
+    vec4 renderSurface(vec3 pos, vec3 dir){
+      vec3 normal = getNormal(pos);
+      return blinnphone(normal, dir);
+    }
+
+    vec4 raymarch(vec3 pos, vec3 dir){
+      const int STEPS = 64;
+
+      for(int i = 0; i < STEPS; i++){
+        float distance = sdfDistance(pos);
+        if(distance < 0.01){
+          return renderSurface(pos, dir);
+        }
+        pos += distance * dir;
+      }
+      #if USE_RAYMARCH_SURFACE_SDF_UNION_SMOOTH
+        return vec4(0.0);
+      #else
+        return vec4(1.0);
+      #endif
+    }
+
+  #endif 
+
+  vec4 frag () {
+    vec4 col = texture(mainTexture, v_uv) * mainColor;
+    vec3 worldViewDir = normalize(cc_cameraPos.xyz - v_position.xyz);
+
+    #if USE_RAYCAST_HIT
+      if(!raycastHit(v_position.xyz, worldViewDir)){
+        discard;
+      }
+    #endif
+
+    #if USE_RAYMARCH_HIT_CONSTANT_STEP
+      if(!raymarchHit(v_position.xyz, -worldViewDir)){
+        discard;
+      }
+    #endif
+
+    #if USE_RAYMARCH_DISTANCE_AIDED
+      col = (1.0 - raymarch0(v_position.xyz, -worldViewDir)) * vec4(1.0,1.0,1.0,1.0);
+    #endif
+    
+    #if USE_RAYMARCH_SURFACE
+      col = raymarch(v_position.xyz, -worldViewDir);
+    #endif
+
+    if(col.a < 0.001){
+      discard;
+    }
+
+    return CCFragOutput(col);
+  }
+}%

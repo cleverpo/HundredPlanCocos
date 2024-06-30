@@ -1,0 +1,66 @@
+vec2 parallaxMapping(vec2 uv, vec3 viewDirTangent, sampler2D depthTexture, float heightScale){
+    float height = texture(depthTexture, uv).r;
+    return uv - viewDirTangent.xy / viewDirTangent.z * height * heightScale;
+}
+
+vec2 steepParallaxMapping(vec2 uv, vec3 viewDirTangent, sampler2D depthTexture, float heightScale){
+    const int numLayers = 10;
+    float layerDepth = 1.0 / float(numLayers);
+    float curLayerDepth = 0.0;
+    vec2 deltaUV = viewDirTangent.xy / viewDirTangent.z * heightScale / float(numLayers);
+    vec2 curUV = uv;
+    float curLayerDepthMap = texture(depthTexture, curUV).r;
+
+    for(int i = 0; i < numLayers; i++){
+      if(curLayerDepthMap <= curLayerDepth) 
+        return curUV;
+
+      curLayerDepth += layerDepth;
+      curUV -= deltaUV;
+      curLayerDepthMap = texture(depthTexture, curUV).r;
+    }
+    
+    return curUV;
+}
+
+vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirTangent, sampler2D depthTexture, float heightScale){
+    //陡峭视差映射
+    const int numLayers = 10;
+    float layerDepth = 1.0 / float(numLayers);
+    float curLayerDepth = 0.0;
+    vec2 deltaUV = viewDirTangent.xy / viewDirTangent.z * heightScale / float(numLayers);
+    vec2 curUV = uv;
+    float curLayerDepthMap = texture(depthTexture, curUV).r;
+
+    for(int i = 0; i < numLayers; i++){
+      if(curLayerDepthMap <= curLayerDepth) 
+        return curUV;
+
+      curLayerDepth += layerDepth;
+      curUV -= deltaUV;
+      curLayerDepthMap = texture(depthTexture, curUV).r;
+    }
+
+    //取上一级
+    vec2 preUV = curUV + deltaUV;
+    //获取当前与上一级深度比值
+    float afterDepth = curLayerDepth - curLayerDepthMap;
+    float preDepth = texture(depthTexture, preUV).r - (curLayerDepth - layerDepth);
+    float weight = afterDepth / (preDepth + afterDepth);
+    // curUV = mix(preUV, curUV, weight);
+    curUV = preUV * weight + curUV * (1.0 - weight);
+    return curUV;
+}
+
+void APPLY_PARALLAX_MAPPING(vec3 viewDirWorld, mat3 matWorldTangent, sampler2D depthTexture, float heightScale, out vec2 uv){
+    vec3 viewDirTangent = matWorldTangent * viewDirWorld;
+
+    //视差贴图
+    #if USE_PARALLAX_MAPPING
+      uv = parallaxMapping(uv, viewDirTangent, depthTexture, heightScale);
+    #elif USE_STEEP_PARALLAX_MAPPING
+      uv = steepParallaxMapping(uv, viewDirTangent, depthTexture, heightScale);
+    #elif USE_PARALLAX_OCCLUSION_MAPPING
+      uv = parallaxOcclusionMapping(uv, viewDirTangent, depthTexture, heightScale);
+    #endif
+}

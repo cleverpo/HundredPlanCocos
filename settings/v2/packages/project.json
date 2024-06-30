@@ -1,0 +1,41 @@
+{
+  "__version__": "1.0.4",
+  "custom_joint_texture_layouts": [],
+  "layer": [
+    {
+      "name": "POST_PROCESS",
+      "value": 1
+    },
+    {
+      "name": "DEPTH",
+      "value": 2
+    },
+    {
+      "name": "BASE",
+      "value": 1024
+    },
+    {
+      "name": "USE_REFLECT",
+      "value": 2048
+    },
+    {
+      "name": "USE_DEPTH",
+      "value": 4096
+    },
+    {
+      "name": "USE_FOAM",
+      "value": 8192
+    },
+    {
+      "name": "NORMAL",
+      "value": 4
+    },
+    {
+      "name": "SCENE",
+      "value": 32
+    }
+  ],
+  "general": {
+    "renderPipeline": "fd8ec536-a354-4a17-9c74-4f3883c378c8"
+  }
+}

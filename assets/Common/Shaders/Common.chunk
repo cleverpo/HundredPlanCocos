@@ -1,0 +1,18 @@
+//Linear01Depth = 1 / ((n - f) / n * NonlinearDepth + (f / n))
+float Linear01Depth(float depth){
+    float near = cc_nearFar.x;
+    float far = cc_nearFar.y;
+    float zc0 = (near - far) / near;
+    float zc1 = far / near;
+    
+    return 1.0 / (zc0 * depth + zc1);
+}
+
+//LinearEyeDepth = 1 / ((n - f) / (f * n) * NonlinearDepth +  (1 / n))
+float LinearEyeDepth(float depth){
+    float near = cc_nearFar.x;
+    float far = cc_nearFar.y;
+    float zc0 = (near - far) / (far * near);
+    float zc1 = 1.0 / near;
+    return 1.0 / (zc0 * depth + zc1);
+}

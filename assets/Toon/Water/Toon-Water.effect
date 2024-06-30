@@ -1,0 +1,230 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture: { value: white }
+        mainColor: { value: [1.0, 1.0, 1.0, 1.0], editor: { type: color } } 
+
+        noiseTexture: { value: white }
+
+        reflectMap: { value: grey, editor: { parent: USE_REFLECTION } }
+        reflectStrength: { value: 0.5, editor: { parent: USE_REFLECTION, slide: true, range: [0.0, 1.0, 0.01] } }
+        fresnelPow: { value: 0.5, editor: { parent: USE_REFLECTION, slide: true, range: [0.0, 1.0, 0.01] } }
+        rimColor: { value: [1.0, 1.0, 1.0, 1.0], editor: { parent: USE_REFLECTION,  type: color } } 
+
+        depthTexture: { value: white, editor: { parent: USE_DEPTH } }
+        depthScale: { value: 0.0002, editor: { parent: USE_DEPTH } }
+        depthPow: { value: 0.3, editor: { parent: USE_DEPTH } }
+        shadowColor: {value: [1.0, 1.0, 1.0, 1.0], editor: { parent: USE_DEPTH, type: color, linear: true}}
+        causticsTexture: { value: white, editor: { parnet: USE_DEPTH } }
+        distortionScale: { value: 1.0, editor: { parent: USE_DEPTH, slide: true, range: [0, 1.0, 0.01] } }
+
+        foamTexture: { value: white, editor: { parnet: USE_FOAM_MAP } }
+        foamDepthScaleMin: { value: 0.0002, editor: { parent: USE_FOAM_MAP } }
+        foamDepthScaleMax: { value: 0.0002, editor: { parent: USE_FOAM_MAP } }
+        foamDepthPow: { value: 0.3, editor: { parent: USE_FOAM_MAP } }
+        foamDistortionTexture: { value: white, editor: { parent: USE_FOAM_MAP } }
+        foamNormalTexture: { value: white, editor: { parnet: USE_FOAM_MAP } }
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert # builtin header
+      frag: unlit-fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+CCProgram unlit-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
+
+  in vec4 a_color;
+
+  out vec3 v_position;
+  out vec3 v_normal;
+  out vec3 v_tangent;
+  out vec3 v_bitangent;
+  out vec2 v_uv;
+  out vec4 v_color;
+  out vec4 v_screenPos;
+  out vec3 v_viewNormal;
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * In.position;
+
+    v_position = pos.xyz;
+    v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+    v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+    v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+
+    v_uv = a_texCoord;
+    v_color = a_color;
+
+    CC_TRANSFER_FOG(pos);
+
+    v_viewNormal = normalize(cc_matView * vec4(v_normal, 0.0)).xyz;
+    v_screenPos = cc_matProj * (cc_matView * matWorld) * In.position;
+    return v_screenPos;
+  }
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output>
+  #include <legacy/fog-fs>
+  #include <common/data/packing> 
+
+  in vec2 v_uv;
+  in vec3 v_position;
+  in vec3 v_normal;
+  in vec4 v_screenPos;
+  in vec3 v_viewNormal;
+
+  uniform sampler2D mainTexture;
+  uniform Constants{
+    vec4 mainColor;
+  };
+
+  uniform sampler2D noiseTexture;
+
+  #if USE_REFLECTION
+    uniform samplerCube reflectMap;
+    uniform ConstantsReflection {
+      vec4 rimColor;
+      float reflectStrength;
+      float fresnelPow;
+    };
+  #endif
+
+  #if USE_DEPTH
+    uniform sampler2D depthTexture;
+    uniform sampler2D causticsTexture;
+    uniform ConstantsDepth{
+      vec4 shadowColor;
+      float depthScale;
+      float depthPow;
+      float distortionScale;
+    };
+  #endif
+
+  #if USE_FOAM_MAP
+    uniform sampler2D foamTexture;
+    uniform sampler2D foamDistortionTexture;
+    uniform sampler2D foamNormalTexture;
+    uniform ConstantsFoam {
+      float foamDepthScaleMin;
+      float foamDepthScaleMax;
+      float foamDepthPow;
+    };
+  #endif
+
+
+  vec4 frag () {
+    float T = texture(noiseTexture, v_uv + v_position.xz * 0.1 + cc_time.x * 0.05).r;
+    vec3 V = normalize(v_position - cc_cameraPos.xyz);
+    vec3 N = normalize(v_normal);
+    vec3 screenUV = v_screenPos.xyz / v_screenPos.w * 0.5 + 0.5;
+    vec4 col = texture(mainTexture, v_uv) * mainColor;
+
+    #if USE_REFLECTION
+      //水面扰动
+      vec3 R = (V - (2.0 * dot(V, N)) * N) + T * 0.03;
+
+      //水面反射
+      vec4 reflectColor = texture(reflectMap, R);
+
+      //fresnel
+      float F0  = 0.02;
+      float F90 = 1.0;
+      float fresnel = F0 + (F90 - F0) * pow(1.0 - dot(N, -V), fresnelPow);
+
+      col.rgb = mix(col.rgb, reflectColor.rgb, fresnel * reflectStrength);
+
+      //边缘光
+      vec2 D = v_uv - vec2(0.5);
+      col.rgb = mix(col.rgb, rimColor.rgb, rimColor.a * smoothstep(0.0, 0.3, dot(D, D)));
+    #endif
+
+    #if USE_DEPTH
+      //水深效果
+      float depth = min(unpackRGBAToDepth(texture(depthTexture, screenUV.xy)), 1.0);
+      //depth to linearDepth
+      float near = cc_nearFar.x;
+      float far = cc_nearFar.y;
+      float zc0 = (near - far) / near;
+      float zc1 = far / near;
+      float linear01Depth = 1.0 / (zc0 * depth + zc1);
+      float waterDepth = 1.0 / (zc0 * screenUV.z + zc1);
+      float depthDiff = linear01Depth - waterDepth;
+
+      if(depthDiff <= depthScale){
+        vec4 shadowColorNew = shadowColor;
+        float depthDiffNew = clamp(depthDiff / depthScale, 0.0, 1.0); //因为DepthDiff很小，所以除depthScale来放大。
+        depthDiffNew = pow(depthDiffNew, depthPow);
+
+        //焦散
+        vec2 causticsUV1 = v_uv + v_position.xz * 0.05 + cc_time.x * 0.03;
+        vec2 causticsUV2 = v_uv + v_position.xz * 0.05 - cc_time.x * 0.03;
+        vec4 causticsColor1 = texture(causticsTexture, causticsUV1);
+        vec4 causticsColor2 = texture(causticsTexture, causticsUV2);
+        // vec4 causticsColor2 = vec4(1.0);
+        vec4 causticsColor = min(causticsColor1, causticsColor2) * 4.0;
+        
+        shadowColorNew = shadowColorNew + causticsColor;
+
+        vec4 waterColor = mix(shadowColorNew, col, depthDiffNew);
+        col.rgb = waterColor.rgb;
+        col.a = depthDiffNew;
+      }
+
+      //水面泡沫，提取0.91以上的值
+      #if USE_FOAM_MAP
+        //采样法线贴图
+        vec3 normal = texture(foamNormalTexture, screenUV.xy).rgb;
+        float normalDot = clamp(dot(normal, v_viewNormal), 0.0, 1.0);
+        float foamDepthScale = mix(foamDepthScaleMax, foamDepthScaleMin, normalDot);
+        // col.rgb = vec3(normalDot, 0.0, 0.0);
+        if(depthDiff <= foamDepthScale){
+          float foamDepthDiff = clamp(depthDiff / foamDepthScale, 0.0, 1.0);
+          foamDepthDiff = pow(foamDepthDiff, foamDepthPow);
+
+          float foamCutoff = 0.7;
+          foamCutoff *= foamDepthDiff;
+
+          //泡沫扰动
+          vec2 distortionSample = (texture(foamDistortionTexture, v_uv + v_position.xz * 0.02).rg * 2.0 - 1.0) * distortionScale;
+
+          vec2 foamUV = vec2(v_uv.x + v_position.x * 0.1 + cc_time.x * 0.03 + distortionSample.x, v_uv.y + v_position.z * 0.2 + cc_time.x * 0.03 + distortionSample.y);
+          float foamSample = texture(foamTexture, foamUV).r;
+          float smoothstepValue = 0.001;
+          float foamValue = smoothstep(foamCutoff - smoothstepValue, foamCutoff + smoothstepValue, foamSample);
+          col.rgb += foamValue;
+        }
+      #endif
+    #endif
+
+    return CCFragOutput(col);
+  }
+}%

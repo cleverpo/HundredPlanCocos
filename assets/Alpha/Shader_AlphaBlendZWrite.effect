@@ -1,0 +1,69 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+
+CCEffect %{
+  techniques:
+  - name: transparent
+    passes:
+    - vert: legacy/main-functions/general-vs:vert # builtin header
+      frag: unlit-fs:fragZWrite
+      DepthStencilState: 
+        depthWrite: true
+        depthTest: false
+    - vert: general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      DepthStencilState: 
+        depthWrite: false
+        depthTest: true
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: 
+        mainTexture:    { value: white }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+        alphaScale:     {value: 0.5, editor: {range: [0.0, 1, 0.1]}}
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output>
+
+  in vec2 v_uv;
+  in vec3 v_position;
+
+  in vec3 v_normal;
+  in vec3 v_tangent;
+  in vec3 v_bitangent;
+
+
+  uniform sampler2D mainTexture;
+
+  uniform Constant {
+    vec4 mainColor;
+    float alphaScale;
+  };
+
+  vec4 fragZWrite(){
+    return CCFragOutput(vec4(0,0,0,0));
+  }
+
+  vec4 frag () {
+    vec3 color = vec3(1.0, 1.0, 1.0);
+    vec3 worldNormal = normalize(v_normal);
+    vec3 worldLightDir = normalize(-cc_mainLitDir.xyz);
+    float NdotL = max(dot(worldNormal, worldLightDir), 0.0);
+
+    vec4 texColor = texture(mainTexture, v_uv);
+    vec3 albedo =  texColor.rgb;
+
+    vec3 ambient = cc_ambientSky.rgb * albedo;
+    vec3 diffuse = cc_mainLitColor.rgb * albedo * NdotL;
+
+    color = ambient + diffuse;
+
+    return CCFragOutput(vec4(color, texColor.a * alphaScale));
+  }
+}%

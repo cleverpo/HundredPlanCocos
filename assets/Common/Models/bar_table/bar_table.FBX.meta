@@ -1,0 +1,78 @@
+{
+  "ver": "2.3.4",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "6176e6dd-c2ef-4a8a-a7db-4c7622616565",
+  "files": [],
+  "subMetas": {
+    "94c19": {
+      "importer": "gltf-mesh",
+      "uuid": "6176e6dd-c2ef-4a8a-a7db-4c7622616565@94c19",
+      "displayName": "",
+      "id": "94c19",
+      "name": "LPTable.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c83de": {
+      "importer": "gltf-material",
+      "uuid": "6176e6dd-c2ef-4a8a-a7db-4c7622616565@c83de",
+      "displayName": "",
+      "id": "c83de",
+      "name": "Material #167.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "46b47": {
+      "importer": "gltf-scene",
+      "uuid": "6176e6dd-c2ef-4a8a-a7db-4c7622616565@46b47",
+      "displayName": "",
+      "id": "46b47",
+      "name": "bar_table.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "redirect": "6176e6dd-c2ef-4a8a-a7db-4c7622616565@46b47",
+    "assetFinder": {
+      "meshes": [
+        "6176e6dd-c2ef-4a8a-a7db-4c7622616565@94c19"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "6176e6dd-c2ef-4a8a-a7db-4c7622616565@c83de"
+      ],
+      "scenes": [
+        "6176e6dd-c2ef-4a8a-a7db-4c7622616565@46b47"
+      ]
+    }
+  }
+}

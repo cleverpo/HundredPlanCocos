@@ -1,0 +1,343 @@
+{
+  "ver": "2.3.4",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "5162930f-f103-4096-a778-8036aea3fbb0",
+  "files": [],
+  "subMetas": {
+    "25a88": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@25a88",
+      "displayName": "",
+      "id": "25a88",
+      "name": "FLoorPlate.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "aa962": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@aa962",
+      "displayName": "",
+      "id": "aa962",
+      "name": "Intersection.mesh",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0f6d6": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@0f6d6",
+      "displayName": "",
+      "id": "0f6d6",
+      "name": "OuterWall.mesh",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0e791": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@0e791",
+      "displayName": "",
+      "id": "0e791",
+      "name": "WallPanel8.mesh",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4a075": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@4a075",
+      "displayName": "",
+      "id": "4a075",
+      "name": "WallPanel9.mesh",
+      "userData": {
+        "gltfIndex": 4
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "52eea": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@52eea",
+      "displayName": "",
+      "id": "52eea",
+      "name": "FLoorPlate1.mesh",
+      "userData": {
+        "gltfIndex": 5
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "35f5a": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@35f5a",
+      "displayName": "",
+      "id": "35f5a",
+      "name": "FLoorPlate2.mesh",
+      "userData": {
+        "gltfIndex": 6
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9a28e": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@9a28e",
+      "displayName": "",
+      "id": "9a28e",
+      "name": "FLoorPlate3.mesh",
+      "userData": {
+        "gltfIndex": 7
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "966bd": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@966bd",
+      "displayName": "",
+      "id": "966bd",
+      "name": "FLoorPlate4.mesh",
+      "userData": {
+        "gltfIndex": 8
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "551c7": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@551c7",
+      "displayName": "",
+      "id": "551c7",
+      "name": "FLoorPlate5.mesh",
+      "userData": {
+        "gltfIndex": 9
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "73d00": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@73d00",
+      "displayName": "",
+      "id": "73d00",
+      "name": "pCylinder3.mesh",
+      "userData": {
+        "gltfIndex": 10
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "07b58": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@07b58",
+      "displayName": "",
+      "id": "07b58",
+      "name": "pCylinder4.mesh",
+      "userData": {
+        "gltfIndex": 11
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "00b3b": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@00b3b",
+      "displayName": "",
+      "id": "00b3b",
+      "name": "LeftDoor.mesh",
+      "userData": {
+        "gltfIndex": 12
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ba922": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@ba922",
+      "displayName": "",
+      "id": "ba922",
+      "name": "RightDoor.mesh",
+      "userData": {
+        "gltfIndex": 13
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a1523": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@a1523",
+      "displayName": "",
+      "id": "a1523",
+      "name": "DoorWall.mesh",
+      "userData": {
+        "gltfIndex": 14
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "967a8": {
+      "importer": "gltf-mesh",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@967a8",
+      "displayName": "",
+      "id": "967a8",
+      "name": "polySurface14.mesh",
+      "userData": {
+        "gltfIndex": 15
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ee820": {
+      "importer": "gltf-scene",
+      "uuid": "5162930f-f103-4096-a778-8036aea3fbb0@ee820",
+      "displayName": "",
+      "id": "ee820",
+      "name": "ScifiHallway.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "redirect": "5162930f-f103-4096-a778-8036aea3fbb0@ee820",
+    "assetFinder": {
+      "meshes": [
+        "5162930f-f103-4096-a778-8036aea3fbb0@25a88",
+        "5162930f-f103-4096-a778-8036aea3fbb0@aa962",
+        "5162930f-f103-4096-a778-8036aea3fbb0@0f6d6",
+        "5162930f-f103-4096-a778-8036aea3fbb0@0e791",
+        "5162930f-f103-4096-a778-8036aea3fbb0@4a075",
+        "5162930f-f103-4096-a778-8036aea3fbb0@52eea",
+        "5162930f-f103-4096-a778-8036aea3fbb0@35f5a",
+        "5162930f-f103-4096-a778-8036aea3fbb0@9a28e",
+        "5162930f-f103-4096-a778-8036aea3fbb0@966bd",
+        "5162930f-f103-4096-a778-8036aea3fbb0@551c7",
+        "5162930f-f103-4096-a778-8036aea3fbb0@73d00",
+        "5162930f-f103-4096-a778-8036aea3fbb0@07b58",
+        "5162930f-f103-4096-a778-8036aea3fbb0@00b3b",
+        "5162930f-f103-4096-a778-8036aea3fbb0@ba922",
+        "5162930f-f103-4096-a778-8036aea3fbb0@a1523",
+        "5162930f-f103-4096-a778-8036aea3fbb0@967a8"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "710f4d41-0622-4bfb-9d99-892b7e571df2",
+        "b2ef995d-8597-49ff-af00-67bb0f0e8d1b",
+        "7433f0fc-77c5-4905-99bc-3728209e9bff",
+        "85a89751-b04d-47e8-babb-887e80a34398",
+        "a3729680-77b7-4bf2-9948-0196cb157463",
+        "f315a966-12f4-41ce-856e-11c8acdbb8e3",
+        "823e136c-0a09-4fea-b299-e2dd6e3c7ad8",
+        "83cf774d-861d-414c-8d47-33ded1fb77df"
+      ],
+      "scenes": [
+        "5162930f-f103-4096-a778-8036aea3fbb0@ee820"
+      ]
+    },
+    "dumpMaterials": true,
+    "depthWriteInAlphaModeBlend": false,
+    "useVertexColors": true,
+    "materialDumpDir": "db://assets/Common/Models/scifi-hallway"
+  }
+}

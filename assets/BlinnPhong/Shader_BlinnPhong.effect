@@ -1,0 +1,31 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+//blinnphong带有法线贴图+高光贴图
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: legacy/main-functions/general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+        diffuseColor:   { value: [1, 1, 1, 1], editor: {type: color }}
+        specularColor:  { value: [1, 1, 1, 1], editor: {type: color}}
+        gloss:          { value: 8.0, editor: { slide: true, range:[ 8, 255, 1]}}
+
+        normalTexture:    { value: normal, editor: {parent: USE_NORMAL_MAP } }
+        normalStrength: { value: 1.0, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0.0, 1.0, 0.1]}}
+
+        specularTexture:    { value: white, editor: {parent: USE_SPECULAR_MAP } }
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include "../Common/Shaders/CommonLighting"
+
+  vec4 frag () {
+    vec4 col = CalcBlinnPhongLighting();
+
+    return CCFragOutput(col);
+  }
+}%

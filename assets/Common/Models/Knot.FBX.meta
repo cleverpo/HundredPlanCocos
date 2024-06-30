@@ -1,0 +1,60 @@
+{
+  "ver": "2.3.4",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "c15fdedb-03e6-4538-aed3-551fddfe749b",
+  "files": [],
+  "subMetas": {
+    "c1183": {
+      "importer": "gltf-mesh",
+      "uuid": "c15fdedb-03e6-4538-aed3-551fddfe749b@c1183",
+      "displayName": "",
+      "id": "c1183",
+      "name": "Torus Knot01.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c011e": {
+      "importer": "gltf-scene",
+      "uuid": "c15fdedb-03e6-4538-aed3-551fddfe749b@c011e",
+      "displayName": "",
+      "id": "c011e",
+      "name": "Knot.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "redirect": "c15fdedb-03e6-4538-aed3-551fddfe749b@c011e",
+    "assetFinder": {
+      "meshes": [
+        "c15fdedb-03e6-4538-aed3-551fddfe749b@c1183"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [],
+      "scenes": [
+        "c15fdedb-03e6-4538-aed3-551fddfe749b@c011e"
+      ]
+    }
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "ver": "2.3.4",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08",
+  "files": [],
+  "subMetas": {
+    "48e22": {
+      "importer": "gltf-mesh",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@48e22",
+      "displayName": "",
+      "id": "48e22",
+      "name": "Visor.mesh",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "185a6": {
+      "importer": "gltf-mesh",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@185a6",
+      "displayName": "",
+      "id": "185a6",
+      "name": "Legs.mesh",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "51e88": {
+      "importer": "gltf-mesh",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@51e88",
+      "displayName": "",
+      "id": "51e88",
+      "name": "hands.mesh",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "41cc3": {
+      "importer": "gltf-mesh",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@41cc3",
+      "displayName": "",
+      "id": "41cc3",
+      "name": "Arms.mesh",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "04293": {
+      "importer": "gltf-mesh",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@04293",
+      "displayName": "",
+      "id": "04293",
+      "name": "Helmet.mesh",
+      "userData": {
+        "gltfIndex": 4
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "cbcd6": {
+      "importer": "gltf-mesh",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@cbcd6",
+      "displayName": "",
+      "id": "cbcd6",
+      "name": "Body.mesh",
+      "userData": {
+        "gltfIndex": 5
+      },
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2665e": {
+      "importer": "gltf-material",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@2665e",
+      "displayName": "",
+      "id": "2665e",
+      "name": "Glass.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "80cca": {
+      "importer": "gltf-material",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@80cca",
+      "displayName": "",
+      "id": "80cca",
+      "name": "Leg.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f14e7": {
+      "importer": "gltf-material",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@f14e7",
+      "displayName": "",
+      "id": "f14e7",
+      "name": "Hand.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "02f74": {
+      "importer": "gltf-material",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@02f74",
+      "displayName": "",
+      "id": "02f74",
+      "name": "Arm.material",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c2dfa": {
+      "importer": "gltf-material",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@c2dfa",
+      "displayName": "",
+      "id": "c2dfa",
+      "name": "Helmet.material",
+      "userData": {
+        "gltfIndex": 4
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f4b39": {
+      "importer": "gltf-material",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@f4b39",
+      "displayName": "",
+      "id": "f4b39",
+      "name": "Body.material",
+      "userData": {
+        "gltfIndex": 5
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "037f3": {
+      "importer": "gltf-scene",
+      "uuid": "3e2a5081-f2c8-4c97-a67d-c479c529db08@037f3",
+      "displayName": "",
+      "id": "037f3",
+      "name": "nanosuit.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "redirect": "3e2a5081-f2c8-4c97-a67d-c479c529db08@037f3",
+    "assetFinder": {
+      "meshes": [
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@48e22",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@185a6",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@51e88",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@41cc3",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@04293",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@cbcd6"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@2665e",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@80cca",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@f14e7",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@02f74",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@c2dfa",
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@f4b39"
+      ],
+      "scenes": [
+        "3e2a5081-f2c8-4c97-a67d-c479c529db08@037f3"
+      ]
+    }
+  }
+}

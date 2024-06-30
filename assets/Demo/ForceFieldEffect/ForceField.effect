@@ -1,0 +1,149 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+
+        rimLightColor: { value: [1.0, 1.0, 1.0, 1.0], target: rimColor, editor: { type: color, linear: true } }
+        rimLightStrength: { value: 1.0, editor: { slide: true, range: [1.0, 10.0, 0.01] } }
+        rimLightPow: { value: 1.0 }
+
+        depthTexture: { value: white }
+
+        noiseTexture: { value: white }
+        sceneTexture: { value: white }
+        xSpeed: { value: 1.0, target: UVSpeed.x, editor: { slide: true, range: [0.0, 10.0, 0.01] } }
+        ySpeed: { value: 1.0, target: UVSpeed.y, editor: { slide: true, range: [0.0, 10.0, 0.01] } }
+        distortionIntensity: { value: 1.0, editor: { slide: true, range: [0.0, 10.0, 0.01] } }
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert # builtin header
+      frag: unlit-fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+CCProgram unlit-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
+
+  in vec4 a_color;
+  #if HAS_SECOND_UV
+    in vec2 a_texCoord1;
+  #endif
+
+  out vec3 v_position;
+  out vec3 v_normal;
+  out vec3 v_tangent;
+  out vec3 v_bitangent;
+  out vec2 v_uv;
+  out vec2 v_uv1;
+  out vec4 v_color;
+  out vec4 v_screenPos;
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * In.position;
+
+    v_position = pos.xyz;
+    v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+    v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+    v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+
+    v_uv = a_texCoord;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1;
+    #endif
+    v_color = a_color;
+
+    CC_TRANSFER_FOG(pos);
+    CC_TRANSFER_SHADOW(pos);
+
+    v_screenPos = cc_matProj * (cc_matView * matWorld) * In.position;
+
+    return v_screenPos;
+  }
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output>
+  #include <legacy/fog-fs>
+  #include <packing>
+  #include "../../Common/Shaders/Common"
+
+  in vec2 v_uv;
+  in vec3 v_position;
+  in vec3 v_normal;
+  in vec4 v_screenPos;
+
+  uniform sampler2D mainTexture;
+  uniform sampler2D depthTexture;
+  uniform sampler2D noiseTexture;
+  uniform sampler2D sceneTexture;
+
+  uniform Constant {
+    vec4 mainColor;
+    vec4 rimColor;
+    vec2 UVSpeed;
+    float rimLightStrength;
+    float rimLightPow;
+    float distortionIntensity;
+  };
+
+  vec4 frag () {
+    vec3 screenUV = v_screenPos.xyz / v_screenPos.w * 0.5 + 0.5;
+    vec4 baseColor = mainColor * texture(mainTexture, v_uv);
+
+    vec3 normal = normalize(v_normal);
+    vec3 viewDir = normalize(v_position - cc_cameraPos.xyz);
+
+    //边缘光
+    float fRim = 1.0 - abs(dot(normal, -viewDir));
+    fRim = pow(fRim, rimLightPow);
+
+    //与底部交接的光
+    //屏幕深度
+    float screenDepth = min(unpackRGBAToDepth(texture(depthTexture, screenUV.xy)), 1.0);
+    screenDepth = LinearEyeDepth(screenDepth);
+    //像素深度
+    float pixelDepth = LinearEyeDepth(screenUV.z);
+    //深度差
+    float depthDiff = 1.0 - clamp(screenDepth - pixelDepth, 0.0, 1.0);
+    depthDiff = pow(depthDiff, 2.0);
+    float factor = max(fRim, depthDiff);
+
+    vec2 noiseUV = v_uv + cc_time.xx * UVSpeed.xy;
+    vec2 offset = texture(noiseTexture, noiseUV).rg * 2.0 - 1.0;
+
+    vec4 sceneSample = texture(sceneTexture, screenUV.xy + offset * distortionIntensity);
+    
+    baseColor = rimColor * factor * rimLightStrength + sceneSample;
+
+
+
+    return CCFragOutput(baseColor);
+  }
+}%

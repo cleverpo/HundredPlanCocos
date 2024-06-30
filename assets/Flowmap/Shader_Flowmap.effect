@@ -1,0 +1,65 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+//flowmap
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: legacy/main-functions/general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+
+        flowmapTexture: {value: white, editor: {parent: USE_FLOW_MAP}}
+        flowSpeed: {value: 1.0, editor: {range: [0, 2.0, 0.1], slide: true, parent: USE_FLOW_MAP}}
+        flowTimeScale: {value: 1.0, editor: {range: [0, 10.0, 0.1], slide: true, parent: USE_FLOW_MAP}}
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output>
+
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec3 v_position;
+  in vec3 v_normal;
+  in vec3 v_tangent;
+  in vec3 v_bitangent;
+
+  uniform sampler2D mainTexture;
+
+  uniform Constant {
+    vec4 mainColor;
+  };
+
+  #if USE_FLOW_MAP
+    uniform sampler2D flowmapTexture;
+    #pragma define-meta FLOWMAP_UV options([v_uv, v_uv1])
+    uniform ConstantFlowMap{
+      float flowSpeed;
+      float flowTimeScale;
+    };
+  #endif
+  
+  vec4 frag () {
+    vec4 albedo = vec4(1.0);
+    //flowmap
+    #if USE_FLOW_MAP
+      vec2 finalUV = v_uv;
+      vec2 uvOffset = texture(flowmapTexture, FLOWMAP_UV).rg * 2.0 - 1.0;
+      uvOffset *= flowSpeed;
+      float time = cc_time.x * flowTimeScale;
+      float phase0 = fract(time);
+      float phase1 = fract(time + 0.5);
+      float texLerp = abs(phase0 * 2.0 - 1.0);
+      vec4 tex0 = texture(mainTexture, finalUV + uvOffset * phase0);
+      vec4 tex1 = texture(mainTexture, finalUV + uvOffset * phase1);
+      albedo = mix(tex0, tex1, texLerp);
+    #else
+      albedo = mainColor * texture(mainTexture, v_uv);
+    #endif
+
+    vec4 col = vec4(albedo.rgb, 1.0);
+    return CCFragOutput(col);
+  }
+}%

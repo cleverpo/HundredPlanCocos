@@ -1,0 +1,140 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: grey }
+        mainColor:      { value: [1, 1, 1, 1], linear: true, editor: { type: color } }
+
+        textureSize: { value: [1, 1], editor: { type: vec2 } }
+}%
+
+CCProgram unlit-vs %{
+  precision highp float;
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <legacy/input>
+  #include <legacy/fog-vs>
+
+  out vec2 v_uv;
+
+  //define out vec2 uv from 0 to 8
+  out vec2 v_uv0;
+  out vec2 v_uv1;
+  out vec2 v_uv2;
+  out vec2 v_uv3;
+  out vec2 v_uv4;
+  out vec2 v_uv5;
+  out vec2 v_uv6;
+  out vec2 v_uv7;
+  out vec2 v_uv8;
+
+  uniform Constants{
+    vec2 textureSize;
+  };
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    v_uv = a_texCoord;
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(v_uv);
+    #endif
+
+    vec2 texelSize = vec2(1.0) / textureSize;
+    v_uv0 = v_uv + texelSize * vec2(-1.0, 1.0); //left top
+    v_uv1 = v_uv + texelSize * vec2(0.0, 1.0); //top
+    v_uv2 = v_uv + texelSize * vec2(1.0, 1.0); //right top
+    v_uv3 = v_uv + texelSize * vec2(-1.0, 0.0); //left
+    v_uv4 = v_uv + texelSize * vec2(0.0, 0.0); //center
+    v_uv5 = v_uv + texelSize * vec2(1.0, 0.0); //right
+    v_uv6 = v_uv + texelSize * vec2(-1.0, -1.0); //left bottom
+    v_uv7 = v_uv + texelSize * vec2(0.0, -1.0); //bottom
+    v_uv8 = v_uv + texelSize * vec2(1.0, -1.0); //right bottom
+
+    vec4 outPos = vec4(sign(position.x), sign(position.y), 0.0, 1.0);
+    return outPos;
+    // return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output-standard>
+  #include <legacy/fog-fs>
+
+  in vec2 v_uv;
+  uniform sampler2D mainTexture;
+
+  uniform Constant {
+    vec4 mainColor;
+  };
+
+  //define in vec2 uv from 0 to 8
+  in vec2 v_uv0;
+  in vec2 v_uv1;
+  in vec2 v_uv2;
+  in vec2 v_uv3;
+  in vec2 v_uv4;
+  in vec2 v_uv5;
+  in vec2 v_uv6;
+  in vec2 v_uv7;
+  in vec2 v_uv8;
+
+
+  float luminance(vec4 color) {
+    return dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
+  }
+
+  float sobel(){
+    //gx
+    float gx[9];
+    gx[0] = -1.0; gx[1] = -2.0; gx[2] = -1.0;
+    gx[3] =  0.0; gx[4] =  0.0; gx[5] =  0.0;
+    gx[6] =  1.0; gx[7] =  2.0; gx[8] =  1.0;
+
+    //gy
+    float gy[9];
+    gy[0] = -1.0; gy[1] =  0.0; gy[2] =  1.0;
+    gy[3] = -2.0; gy[4] =  0.0; gy[5] =  2.0;
+    gy[6] = -1.0; gy[7] =  0.0; gy[8] =  1.0;
+
+    float texColor;
+    float edgeX;
+    float edgeY;
+
+    texColor = luminance(texture(mainTexture, v_uv0)); edgeX += texColor * gx[0]; edgeY += texColor * gy[0];
+    texColor = luminance(texture(mainTexture, v_uv1)); edgeX += texColor * gx[1]; edgeY += texColor * gy[1];
+    texColor = luminance(texture(mainTexture, v_uv2)); edgeX += texColor * gx[2]; edgeY += texColor * gy[2];
+    texColor = luminance(texture(mainTexture, v_uv3)); edgeX += texColor * gx[3]; edgeY += texColor * gy[3];
+    texColor = luminance(texture(mainTexture, v_uv4)); edgeX += texColor * gx[4]; edgeY += texColor * gy[4];
+    texColor = luminance(texture(mainTexture, v_uv5)); edgeX += texColor * gx[5]; edgeY += texColor * gy[5];
+    texColor = luminance(texture(mainTexture, v_uv6)); edgeX += texColor * gx[6]; edgeY += texColor * gy[6];
+    texColor = luminance(texture(mainTexture, v_uv7)); edgeX += texColor * gx[7]; edgeY += texColor * gy[7];
+    texColor = luminance(texture(mainTexture, v_uv8)); edgeX += texColor * gx[8]; edgeY += texColor * gy[8];
+
+    return 1.0 - (abs(edgeX) + abs(edgeY));
+  }
+
+  vec4 frag () {
+    vec4 o = mainColor;
+    vec4 texColor = texture(mainTexture, v_uv);
+    texColor.rgb = SRGBToLinear(texColor.rgb);
+    o *= texColor;
+
+    float edge = sobel();
+    vec4 edgeColor = vec4(edge);
+    o *= edgeColor;
+    // return vec4(edge, edge, edge, 1.0);
+    return CCFragOutput(o);
+  }
+}%

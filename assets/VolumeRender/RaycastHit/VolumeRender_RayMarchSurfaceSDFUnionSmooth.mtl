@@ -1,0 +1,55 @@
+{
+  "__type__": "cc.Material",
+  "_name": "",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "af8c8da3-857b-4141-b4a2-5e487cb017f1",
+    "__expectedType__": "cc.EffectAsset"
+  },
+  "_techIdx": 0,
+  "_defines": [
+    {
+      "USE_RAYMARCH_SURFACE": true,
+      "USE_RAYMARCH_SURFACE_SDF_UNION_SMOOTH": true
+    }
+  ],
+  "_states": [
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    }
+  ],
+  "_props": [
+    {
+      "mainColor": {
+        "__type__": "cc.Color",
+        "r": 255,
+        "g": 214,
+        "b": 0,
+        "a": 255
+      },
+      "centre": {
+        "__type__": "cc.Vec4",
+        "x": 6,
+        "y": 0,
+        "z": 0,
+        "w": 0
+      },
+      "centre1": {
+        "__type__": "cc.Vec4",
+        "x": 6,
+        "y": 0,
+        "z": 0,
+        "w": 0
+      },
+      "radius": 0.1,
+      "radius1": 0.1
+    }
+  ]
+}

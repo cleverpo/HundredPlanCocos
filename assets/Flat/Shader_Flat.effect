@@ -1,0 +1,85 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+//blinnphong带有法线贴图+高光贴图
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: legacy/main-functions/general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+        diffuseColor:   { value: [1, 1, 1, 1], editor: {type: color }}
+        specularColor:  { value: [1, 1, 1, 1], editor: {type: color}}
+        gloss:          { value: 8.0, editor: { slide: true, range:[ 8, 255, 1]}}
+
+        specularTexture:    { value: white, editor: {parent: USE_SPECULAR_MAP } }
+}%
+
+CCProgram unlit-fs %{
+  //用dFdx/dFdy，在webgl1.0默认关闭，这里要开启
+  #ifdef GL_OES_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  precision highp float;
+  #include <legacy/output>
+
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec3 v_position;
+  in vec3 v_tangent;
+  in vec3 v_bitangent;
+
+  uniform sampler2D mainTexture;
+
+  uniform Constant {
+    vec4 mainColor;
+    vec4 diffuseColor;
+    vec4 specularColor;
+    float gloss;
+  };
+
+  #if USE_SPECULAR_MAP
+    uniform sampler2D specularTexture;
+    #pragma define-meta SPECULAR_UV options([v_uv, v_uv1])
+  #endif
+  
+  vec3 GetNormal(vec3 worldPos){
+      vec3 dpdx = dFdx(worldPos);
+      vec3 dpdy = dFdy(worldPos);
+      return normalize(cross(dpdx, dpdy));
+  }
+
+  vec4 frag () {
+    vec4 albedo = mainColor * texture(mainTexture, v_uv);
+    vec3 normalWorld = GetNormal(v_position);
+    vec3 tangentWorld = normalize(v_tangent);
+    vec3 bitangentWorld = normalize(v_bitangent);
+    vec3 lightDirWolrd = normalize(-cc_mainLitDir.xyz);
+    vec3 viewDirWorld = normalize(cc_cameraPos.xyz - v_position.xyz);
+    vec3 halfDir = normalize(lightDirWolrd + viewDirWorld);
+    vec3 normalFinal = normalWorld;
+
+    float nDotL = max(dot(normalFinal, lightDirWolrd), 0.0);
+    float nDotH = max(dot(normalFinal, halfDir), 0.0);
+
+    vec3 ambient = cc_mainLitColor.rgb * cc_ambientSky.rgb * albedo.rgb;
+
+    //漫反射 trick: 兰伯特因为暗部是黑色，过渡不自然，所以通过一个插值得到最终的diffuse，前半段为暗部颜色，后半段为亮部颜色
+    // vec3 diffuse = cc_mainLitColor.rgb * diffuseColor.rgb * albedo.rgb * nDotL;
+    vec3 diffuse = mix(cc_ambientSky.rgb * diffuseColor.rgb * albedo.rgb, cc_mainLitColor.rgb * diffuseColor.rgb * albedo.rgb, nDotL);
+    
+    //高光
+    vec3 specular = cc_mainLitColor.rgb * specularColor.rgb * pow(nDotH, gloss);
+    //trick: 高光时候，只有4%机率受漫反射影响
+    // specular = mix(diffuse * specular, specular, gloss / 255.0);
+    #if USE_SPECULAR_MAP
+      //高光贴图
+      vec4 specularMap = texture(specularTexture, SPECULAR_UV);
+      specular = specular * specularMap.rgb;
+    #endif
+
+    vec4 col = vec4(ambient + diffuse + specular, 1.0);
+    return CCFragOutput(col);
+  }
+}%
